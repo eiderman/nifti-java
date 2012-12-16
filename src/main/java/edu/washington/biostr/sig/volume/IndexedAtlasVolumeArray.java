@@ -181,8 +181,8 @@ public class IndexedAtlasVolumeArray extends IndexedVolumeArray {
     }
 
     @Override
-    public Object get(float x, float y, float z, int time, int i5) {
-        int v = backing.getInt(x, y, z, time, i5);
+    public Object mmGet(float x, float y, float z, int time, int i5) {
+        int v = backing.mmGetAsInt(x, y, z, time, i5);
         return atlas.get(v);
     }
 

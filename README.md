@@ -20,6 +20,23 @@ To minimize dependencies and maximize usefulness in existing applications, the r
 
 They now include better support for sampling voxel values using sample() and sampleNumber(). Just default i5 to 0 for 3 or 4 dimensional files and t to 0 for 3 dimensional files. i5 exists to support 5D NIFTI files that have a matrix or vector at each voxel (e.g. DTI).
 
+Basic Usage
+===========
+
+## Loading From a File
+
+ VolumePair volume = NiftiIO.load(new File(args[0]));
+ VolumeArray array = volume.getArray();
+
+## Looking up a value
+
+ // in mm
+ double value = array.mmGetAsDouble(x,y,z);
+ // as a voxel
+ double value = array.getDouble(x, y, z);
+
+
+
 Building
 ========
 

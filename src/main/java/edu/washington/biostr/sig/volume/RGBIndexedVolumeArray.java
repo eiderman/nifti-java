@@ -85,7 +85,7 @@ public class RGBIndexedVolumeArray extends IntIndexedVolumeArray {
      * @return Cast the data int a Color object.
      */
     public Object get(float x, float y, float z, int time, int i5) {
-        return new Color(getInt(x, y, z, time, i5));
+        return new Color(mmGetAsInt(x, y, z, time, i5));
     }
 
     @Override
