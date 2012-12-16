@@ -30,7 +30,7 @@ public class IndexedAtlasVolumeArray extends IndexedVolumeArray {
     private Map<String, AtlasElement> id2atlas;
     private Collection<AtlasElement> atlasE;
 
-    private List<AtlasCollection> collections;
+    private Iterable<AtlasCollection> collections;
     
     /**
      * Create an atlas from the given integer volume and the mappings in <code>atlas</code>
@@ -118,7 +118,7 @@ public class IndexedAtlasVolumeArray extends IndexedVolumeArray {
      * Get a default way to group the elements.
      * @return An ordered list of collections.
      */
-    public List<AtlasCollection> getCollections() {
+    public Iterable<AtlasCollection> getCollections() {
         if (collections == null) {
             AtlasCollection ac = new AtlasCollection("Structures");
             ac.addAll(getAtlas());
@@ -131,7 +131,7 @@ public class IndexedAtlasVolumeArray extends IndexedVolumeArray {
      * Set the collection list to be collections. 
      * @param collections The list of collections.
      */
-    public void setCollections(List<AtlasCollection> collections) {
+    public void setCollections(Iterable<AtlasCollection> collections) {
         this.collections = collections;
     }
 

@@ -351,7 +351,7 @@ public class NiftiFile
    }
 
    /**
-    * Get the data as an array as an array of doubles.  This will likely
+    * Get the data as an array array of doubles.  This will likely
     * require casting the data and may require a new allocation of the
     * array every time it is called.
     * @return an array of doubles.
