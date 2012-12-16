@@ -12,6 +12,7 @@ repositories.remote << "http://repo1.maven.org/maven2"
 
 # Dependency Short Forms
 FASTUTIL='it.unimi.dsi:fastutil:jar:6.4.6'
+VECMATH='java3d:vecmath:jar:1.3.1'
 
 desc "The Nifti-java project"
 define "nifti-java" do
@@ -19,6 +20,6 @@ define "nifti-java" do
   project.version = VERSION_NUMBER
   project.group = GROUP
   manifest["Implementation-Vendor"] = COPYRIGHT
-  compile.with FASTUTIL
+  compile.with FASTUTIL,VECMATH
   package(:jar)
 end
