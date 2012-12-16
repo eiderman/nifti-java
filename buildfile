@@ -4,7 +4,7 @@
 # Version number for this release
 VERSION_NUMBER = "1.0.0"
 # Group identifier for your projects
-GROUP = "nifti-java"
+GROUP = "sig.biostr.washington.edu"
 COPYRIGHT = "University of Washington"
 
 # Specify Maven 2.0 remote repositories here, like this:
