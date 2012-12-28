@@ -24,17 +24,17 @@ Basic Usage
 ===========
 
 ## Loading From a File
-
+```java
  VolumePair volume = NiftiIO.load(new File(args[0]));
  VolumeArray array = volume.getArray();
-
+```
 ## Looking up a value
-
+```java
  // in mm
  double value = array.mmGetAsDouble(x,y,z);
  // as a voxel
  double value = array.getDouble(x, y, z);
-
+```
 
 
 Building
