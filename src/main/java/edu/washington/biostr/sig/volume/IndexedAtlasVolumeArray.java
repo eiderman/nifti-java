@@ -1,16 +1,14 @@
 package edu.washington.biostr.sig.volume;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -181,8 +179,8 @@ public class IndexedAtlasVolumeArray extends IndexedVolumeArray {
     }
 
     @Override
-    public Object mmGet(float x, float y, float z, int time, int i5) {
-        int v = backing.mmGetAsInt(x, y, z, time, i5);
+    public Object get(float x, float y, float z, int time, int i5) {
+        int v = backing.getInt(x, y, z, time, i5);
         return atlas.get(v);
     }
 

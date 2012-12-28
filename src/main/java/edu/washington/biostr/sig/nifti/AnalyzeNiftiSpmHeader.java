@@ -103,7 +103,7 @@ public class AnalyzeNiftiSpmHeader
    public final static short NIFTI_INTENT_ESTIMATE = 1001;
    public final static short NIFTI_INTENT_LABEL = 1002;
    public final static short NIFTI_INTENT_NEURONAME = 1003;
-   public final static short NIFTI_INTENT_GENMATRIX = 1003;
+   public final static short NIFTI_INTENT_GENMATRIX = 1004;
    public final static short NIFTI_INTENT_SYMMATRIX = 1005;
    public final static short NIFTI_INTENT_DISPVECT = 1006;
    public final static short NIFTI_INTENT_VECTOR_OTHER = 1007;

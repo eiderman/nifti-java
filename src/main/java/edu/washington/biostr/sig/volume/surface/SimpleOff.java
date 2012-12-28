@@ -1,9 +1,7 @@
 package edu.washington.biostr.sig.volume.surface;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,9 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.StreamTokenizer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Provide a simple interface for reading and writing
@@ -400,6 +395,13 @@ public class SimpleOff {
             writer.write((s.getFaces()[i + 1] + 1) + " ");
             writer.write((s.getFaces()[i + 2] + 1) + "\n");
         }
+        if (s.getColors() != null) {
+            for (int i = 0; i < s.getColors().length; i += 3) {
+                writer.write("c " + formatter.format(s.getColors()[i]) + " ");
+                writer.write(formatter.format(s.getColors()[i + 1]) + " ");
+                writer.write(formatter.format(s.getColors()[i + 2]) + "\n");
+            }
+        }
         writer.flush();
         o.close();
     }
@@ -453,12 +455,19 @@ public class SimpleOff {
     }
     
     public static Surface readObj(InputStream in) throws IOException {
-    	String line = readLine(in);
+    	String line;
     	int gcount = 0;
+    	int maxface = -1;
         ArrayList<float[]> points = new ArrayList<float[]>(100000);
         ArrayList<int[]> faces = new ArrayList<int[]>(100000);
         ArrayList<float[]> normals = new ArrayList<float[]>(100000);
+        int linecount = 0;
     	while ((line = readLine(in)) != null) {
+    		linecount++;
+    		line = line.trim();
+    		if (line.startsWith("#") || line.length() == 0) {
+    			continue;
+    		}
     		String[] values = line.split("\\s+");
     		if (values[0].equalsIgnoreCase("v")) {
     			float[] p = new float[] {
@@ -466,7 +475,7 @@ public class SimpleOff {
     					Float.parseFloat(values[2]),
     					Float.parseFloat(values[3])};    					
     			points.add(p);
-    		} else if (values[0].equalsIgnoreCase("v")) {
+    		} else if (values[0].equalsIgnoreCase("vn")) {
     			float[] n = new float[] {
     					Float.parseFloat(values[1]),
     					Float.parseFloat(values[2]),
@@ -474,26 +483,34 @@ public class SimpleOff {
     			normals.add(n);
     		} else if (values[0].equalsIgnoreCase("f")) {
     			if (values.length != 4) {
+    				System.err.println(linecount);
     				throw new IllegalArgumentException("Only triangles supported");
     			}
     			int[] face = new int[3];
     			for (int i = 0; i < 3; i++) {
     				String[] faceS = values[i + 1].split("/");
-    				face[i] = Integer.parseInt(faceS[0]) - 1;
+    				int myface = Integer.parseInt(faceS[0]); 
+    				face[i] =  myface - 1;
+    				maxface = Math.max(myface, maxface);
     				// check to make sure the values are "legal"
     				if (faceS.length == 3) {
     					if (Integer.parseInt(faceS[2]) - 1 != face[i]) {
+    	    				System.err.println(linecount);
     						throw new IllegalArgumentException("Normals and faces must line up!");
     					}
     				}
     			}
+    			faces.add(face);
     		} else if (values[0].equals("g"))  {
     			gcount++;
     			if (gcount > 1){
+    				System.err.println(linecount);
     				throw new IllegalArgumentException("Only one Surface is supported");
     			}
     		}
+
     	}
+    	System.out.println(maxface);
         // make the float
         float[] v = new float[points.size() * 3];
         for (int i = 0; i < points.size(); i++) {
@@ -503,9 +520,9 @@ public class SimpleOff {
         }        // make the float
         float[] n = new float[normals.size() * 3];
         for (int i = 0; i < normals.size(); i++) {
-            v[i * 3] = normals.get(i)[0];
-            v[i * 3 + 1] = normals.get(i)[1];
-            v[i * 3 + 2] = normals.get(i)[2];
+            n[i * 3] = normals.get(i)[0];
+            n[i * 3 + 1] = normals.get(i)[1];
+            n[i * 3 + 2] = normals.get(i)[2];
         }
         int[] f = new int[faces.size() * 3];
         for (int i = 0; i < faces.size(); i++) {
@@ -521,6 +538,7 @@ public class SimpleOff {
     
     public static Surface readSMF(InputStream in) throws IOException {
         ArrayList<float[]> points = new ArrayList<float[]>(100000);
+        ArrayList<float[]> colors = new ArrayList<float[]>(100000);
         ArrayList<int[]> faces = new ArrayList<int[]>(100000);
         // read each line
         String line;
@@ -539,7 +557,12 @@ public class SimpleOff {
                         Integer.parseInt(p[2]) - 1,
                         Integer.parseInt(p[3]) - 1
                     });
-                }
+                }if (line.startsWith("c")) {
+                    String[] p = line.split("\\s");
+                    colors.add(new float[]{Float.parseFloat(p[1]),
+                        Float.parseFloat(p[2]), Float.parseFloat(p[3])
+                    });
+                } 
             }
         } while (line != null);
         // make the float
@@ -549,13 +572,24 @@ public class SimpleOff {
             v[i * 3 + 1] = points.get(i)[1];
             v[i * 3 + 2] = points.get(i)[2];
         }
+        float[] c;
+        if (colors.isEmpty()) {
+        	c = null;
+        } else {
+        	c =  new float[colors.size() * 3];
+            for (int i = 0; i < colors.size(); i++) {
+                c[i * 3] = colors.get(i)[0];
+                c[i * 3 + 1] = colors.get(i)[1];
+                c[i * 3 + 2] = colors.get(i)[2];
+            }
+        }
         int[] f = new int[faces.size() * 3];
         for (int i = 0; i < faces.size(); i++) {
             f[i * 3] = faces.get(i)[0];
             f[i * 3 + 1] = faces.get(i)[1];
             f[i * 3 + 2] = faces.get(i)[2];
         }
-        Surface s = new Surface(f, v, null);
+        Surface s = new Surface(f, v, null, c);
         s.makeNormals();
         return s;
     }

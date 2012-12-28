@@ -76,7 +76,7 @@ public class FileUtilities {
     }
 
     public static URL[] findJarURLs(URL url, String[] extensions, ClassLoader loader) {
-    	String path = url.getPath();
+    	String path = url.toString();
     	String external = url.toExternalForm();
     	external = external.substring(0, external.lastIndexOf('.'));
     	int index0 = path.indexOf("!/");
@@ -169,12 +169,13 @@ public class FileUtilities {
      */
     public static URL[] findURLs(URL url, String[] extensions) throws URISyntaxException, IOException {
         try {
+        	System.out.println("URL " + url);
 			if (url.getProtocol().contains("file")) {
 			    return findURLs(new File(url.toURI()), extensions);
 			} else if (url.getProtocol().contains("jar")) {
 				return findJarURLs(url, extensions, resourceResolver);
 			}
-			String name = url.getPath();
+			String name = url.toString();
 			int i = name.lastIndexOf('/');
 			if (i < 0) {
 				System.err.println(url);

@@ -82,4 +82,8 @@ public class MirroredVolumeArray extends IndexedVolumeArray
    	return myva.getDataArray();
    }
 
+   public VolumeArray getBackingArray() {
+	   return myva;
+   }
+   
 }

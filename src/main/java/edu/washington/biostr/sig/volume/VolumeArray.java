@@ -1,5 +1,6 @@
 package edu.washington.biostr.sig.volume;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
@@ -233,7 +234,7 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * image and will store the min and max as doubles.
      * @param highRes if true, find the real min and max.  If false then approximate it.
      */
-    protected void setMinMax(boolean highRes) {
+    public void setMinMax(boolean highRes) {
         double max = -Double.MAX_VALUE;
         double min = Double.MAX_VALUE;
         double value;
@@ -272,55 +273,28 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param x
      * @param y
      * @param z
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return
      */
-    public double mmGetAsDouble(float x, float y, float z, int time, int i5) {
+    public double getDouble(float x, float y, float z, int time, int i5) {
         Point3f p = new Point3f(x, y, z);
-        double answer = mmGetAsDouble(p, time, i5);
+        double answer = getDouble(p, time, i5);
         return answer;
     }
 
     /**
-     * get a double close to the value specified by the coordinates in this's space.
-     * Implementation Note:  For higher perfomance, use getDouble(p, time) with a point that
-     * can be changed and that is reused for each method call..
-     * Implementation Note: This just truncates the
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public double mmGetAsDouble(float x, float y, float z) {
-      return mmGetAsDouble(x, y, z, 0, 0);
-    }
-    
-    /**
      * Get an int close to that specified by the place in the space.  p will be changed as
      * a result of this function.  So use getDouble(x,y,z,time) if you don't want
      * p changed.  This returns a value close to the index.  <br>
-     * Implementation Note: This just truncates the int.
      * @param p
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return
      */
-    public int mmGetAsInt(Point3f p, int time, int i5) {
+    public int getInt(Point3f p, int time, int i5) {
         mspace2Index.transform(p);
-        return getInt((int) p.x, (int) p.y, (int) p.z, time, i5);
-    }
-
-    /**
-     * Get an int close to that specified by the place in the space.  p will be changed as
-     * a result of this function.  So use getDouble(x,y,z,time) if you don't want
-     * p changed.  This returns a value close to the index.  <br>
-     * Implementation Note: This just truncates the int.
-     * @param p
-     * @return
-     */
-    public int mmGetAsInt(Point3f p) {
-      return mmGetAsInt(p, 0, 0);
+        return getInt(quickRoundPositive(p.x), quickRoundPositive(p.y), quickRoundPositive(p.z), time, i5);
     }
 
     /**
@@ -329,104 +303,6 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * function will usually not create an object, but will access synchronized
      * code.  For higher perfomance, use getInt(p, time) with a point that
      * can be changed and that is reused for each method call..
-     * @param x
-     * @param y
-     * @param z
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
-     * @return
-     */
-    public int mmGetAsInt(float x, float y, float z, int time, int i5) {
-        Point3f p = new Point3f(x, y, z);
-        double answer = mmGetAsDouble(p, maxTime == 1 ? 0 : time, i5);
-        return (int) answer;
-    }
-
-    /**
-     * get an int close to that specified in this things space.
-     * Implementation Note: To reduce object creation/garbage collection, this
-     * function will usually not create an object, but will access synchronized
-     * code.  For higher perfomance, use getInt(p, time) with a point that
-     * can be changed and that is reused for each method call..
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public int mmGetAsInt(float x, float y, float z) {
-      return mmGetAsInt(x, y, z, 0, 0);
-    }
-
-    
-    /**
-     * Get a double close to the specified by the place in the space.  p will be changed as
-     * a result of this function.  So use getDouble(x,y,z,time) if you don't want
-     * p changed.  This returns a value close to the index.  <br>
-     * Implementation Note: This just uses nearest neighbor.
-     * @param p
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 the fifth index
-     * @return
-     */
-    public double mmGetAsDouble(Point3f p, int time, int i5) {
-        mspace2Index.transform(p);
-        return getDouble(quickRoundPositive(p.x), quickRoundPositive(p.y), quickRoundPositive(p.z),
-                maxTime == 1 ? 0 : time,
-                i5);
-    }
-
-
-    /**
-     * Get a double close to the specified by the place in the space.  p will be changed as
-     * a result of this function.  So use getDouble(x,y,z,time) if you don't want
-     * p changed.  This returns a value close to the index.  <br>
-     * Implementation Note: This just uses nearest neighbor.
-     * @param p
-     * @return
-     */
-    public double mmGetAsDouble(Point3f p) {
-      return mmGetAsDouble(p, 0, 0);
-    }
-
-    /**
-     * get a double for the value specified by the coordinates in this's space.
-     * This use interpolation to get the double that best matches this location.
-     * Implementation Note: To reduce object creation/garbage collection, this
-     * function will usually not create an object, but will access synchronized
-     * code.  For higher perfomance, use getBestDouble(p, time) with a point that
-     * can be changed and that is reused for each method call..
-     * @param x
-     * @param y
-     * @param z
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
-     * @return
-     */
-    public double mmGetInterpolate(float x, float y, float z, int time, int i5) {
-        Point3f p = new Point3f(x, y, z);
-        double answer = mmGetInterpolate(p, time, i5);
-        return answer;
-    }
-
-
-    /**
-     * get a double for the value specified by the coordinates in this's space.
-     * This use interpolation to get the double that best matches this location.
-     * Implementation Note: To reduce object creation/garbage collection, this
-     * function will usually not create an object, but will access synchronized
-     * code.  For higher perfomance, use getBestDouble(p, time) with a point that
-     * can be changed and that is reused for each method call..
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public double mmGetInterpolate(float x, float y, float z) {
-      return mmGetInterpolate(x, y, z, 0, 0);
-    }
-
-    /**
-     * Get the best type wrapped in boxed version.
      * @param x
      * @param y
      * @param z
@@ -434,19 +310,51 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param i5
      * @return
      */
-    public Object mmGet(float x, float y, float z, int time, int i5) {
-        return new Double(mmGetAsDouble(x, y, z, time, i5));
+    public int getInt(float x, float y, float z, int time, int i5) {
+        Point3f p = new Point3f(x, y, z);
+        double answer = getDouble(p, maxTime == 1 ? 0 : time, i5);
+        return (int) answer;
     }
-    
+
     /**
-     * Get the best type wrapped in a boxed version
+     * Get a double close to the specified by the place in the space.  p will be changed as
+     * a result of this function.  So use getDouble(x,y,z,time) if you don't want
+     * p changed.  This returns a value close to the index.  <br>
+     * Implementation Note: This just uses nearest neighbor.
+     * @param p
+     * @param time
+     * @param i5 the fifth index
+     * @return
+     */
+    public double getDouble(Point3f p, int time, int i5) {
+        mspace2Index.transform(p);
+        return getDouble(quickRoundPositive(p.x), quickRoundPositive(p.y), quickRoundPositive(p.z),
+                maxTime == 1 ? 0 : time,
+                i5);
+    }
+
+    /**
+     * get a double for the value specified by the coordinates in this's space.
+     * This use interpolation to get the double that best matches this location.
+     * Implementation Note: To reduce object creation/garbage collection, this
+     * function will usually not create an object, but will access synchronized
+     * code.  For higher perfomance, use getBestDouble(p, time) with a point that
+     * can be changed and that is reused for each method call..
      * @param x
      * @param y
      * @param z
+     * @param time
+     * @param i5
      * @return
      */
-    public Object mmGet(float x, float y, float z) {
-        return new Double(mmGetAsDouble(x, y, z, 0, 0));
+    public double getBestDouble(float x, float y, float z, int time, int i5) {
+        Point3f p = new Point3f(x, y, z);
+        double answer = getBestDouble(p, time, i5);
+        return answer;
+    }
+
+    public Object get(float x, float y, float z, int time, int i5) {
+        return new Double(getDouble(x, y, z, time, i5));
     }
 
     /**
@@ -455,25 +363,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * p changed.  This returns a value close to the index.  <br>
      * This use interpolation to get the double that best matches this location.
      * @param p
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return
      */
-    public double mmGetInterpolate(Point3f p, int time, int i5) {
+    public double getBestDouble(Point3f p, int time, int i5) {
         mspace2Index.transform(p);
         return interpolate(p.x, p.y, p.z, maxTime == 1 ? 0 : time, i5);
-    }
-
-    /**
-     * Get the double specified by the place in the space.  p will be changed as
-     * a result of this function.  So use getDouble(x,y,z,time) if you don't want
-     * p changed.  This returns a value close to the index.  <br>
-     * This use interpolation to get the double that best matches this location.
-     * @param p
-     * @return
-     */
-    public double mmGetInterpolate(Point3f p) {
-      return mmGetInterpolate(p, 0, 0);
     }
 
     /**
@@ -481,10 +377,9 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param i
      * @param j
      * @param k
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return an double value for the specified index.
-     * 
      */
     public abstract double getDouble(int i, int j, int k, int time, int i5);
 
@@ -493,8 +388,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param i
      * @param j
      * @param k
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return an integer value for the specified index.
      */
     public abstract int getInt(int i, int j, int k, int time, int i5);
@@ -521,8 +416,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param x2
      * @param y2
      * @param z2
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @param arr The array to fill with data.  The length determines resolution.
      * @returns arr.
      */
@@ -542,8 +437,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @todo use lineNatural and iterator to optimize.
      * @param p1
      * @param p2
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @param arr Fill arr with the evenly spaced values from p1 to p2
      * @return arr
      */
@@ -567,7 +462,7 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y
      * @param z
      * @param t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param i5
      * @param value
      */
     public abstract void setData(int x, int y, int z, int t, int i5, double value);
@@ -578,7 +473,7 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y
      * @param z
      * @param t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param i5
      * @param value
      */
     public abstract void setData(int x, int y, int z, int t, int i5, int value);
@@ -599,8 +494,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param upperleftIn
      * @param rightIn
      * @param downIn
-     * @param time The time dimension is used to lookup the index in timeseries data The time point to focus on
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 The i5 point to focus on
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
      * @param width The width in pixels
      * @param height The height in pixels
      * @param alpha Support alpha.
@@ -625,8 +520,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param upperleftIn
      * @param rightIn
      * @param downIn
-     * @param time The time dimension is used to lookup the index in timeseries data The time point to focus on
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 The i5 point to focus on
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
      * @param width The width in pixels
      * @param height The height in pixels
      * @param alpha Support alpha.
@@ -650,8 +545,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param upperleftIn
      * @param rightIn
      * @param downIn
-     * @param time The time dimension is used to lookup the index in timeseries data The time point to focus on
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 The i5 point to focus on
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
      * @param width The width in pixels
      * @param height The height in pixels
      * @param alpha Support alpha.
@@ -692,9 +587,9 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
     	Vector3f v = new Vector3f(i, j, k);
     	if (indexHelper == null) {
     		indexHelper = new Matrix3f(
-    				oneOrNone(mIndex2space.m00), oneOrNone(mIndex2space.m01), oneOrNone(mIndex2space.m02),
-    				oneOrNone(mIndex2space.m10), oneOrNone(mIndex2space.m11), oneOrNone(mIndex2space.m12),
-    				oneOrNone(mIndex2space.m20), oneOrNone(mIndex2space.m21), oneOrNone(mIndex2space.m22));
+    				OneOrNone(mIndex2space.m00), OneOrNone(mIndex2space.m01), OneOrNone(mIndex2space.m02),
+    				OneOrNone(mIndex2space.m10), OneOrNone(mIndex2space.m11), OneOrNone(mIndex2space.m12),
+    				OneOrNone(mIndex2space.m20), OneOrNone(mIndex2space.m21), OneOrNone(mIndex2space.m22));
     	}
     	indexHelper.transform(v);
     	switch (direction){
@@ -709,7 +604,7 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
     	}
     }
     
-    private int oneOrNone(double v) {
+    private int OneOrNone(double v) {
     	if (Math.abs(v) < .000001) {
     		return 0;
     	} else {
@@ -724,8 +619,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param upperleftIn
      * @param rightIn
      * @param downIn
-     * @param time The time dimension is used to lookup the index in timeseries data The time point to focus on
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 The i5 point to focus on
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
      * @param img The image to put this into
      * @param alpha Support alpha.
      * @param alphaV if alpha is supported, use alphaV (between 0 and 1).
@@ -891,8 +786,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param upperleftIn
      * @param rightIn
      * @param downIn
-     * @param time The time dimension is used to lookup the index in timeseries data The time point to focus on
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0 The i5 point to focus on
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
      * @param width The width in pixels
      * @param height The height in pixels
      * @param alpha Support alpha.
@@ -907,6 +802,43 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
             int time, int i5, final BufferedImage img,
             float alphaV, ColorLookupTable table,
             ColorTransformTable colorTransform, Interpolation interpolation) {
+    	return renderInto(upperleftIn, rightIn, downIn, time, i5, img, alphaV, table, colorTransform, interpolation,
+    			new Rectangle(0, 0, img.getWidth(), img.getHeight()));
+    }
+    	
+    /**
+     * Extract an image that is specified by the given slice.  The slice is
+     * specified with the upper left hand corner (in mm), the right direction and
+     * length (in mm) and the down direction and length (also in mm).
+     * @param upperleftIn
+     * @param rightIn
+     * @param downIn
+     * @param time The time point to focus on
+     * @param i5 The i5 point to focus on
+     * @param width The width in pixels
+     * @param height The height in pixels
+     * @param alpha Support alpha.
+     * @param alphaV if alpha is supported, use alphaV (between 0 and 1).
+     * @param table The table to convert values to RGB, must be specified for non RGB images.
+     * @param colorTransform Used to transform RGB values to new colors.
+     * @param interpolation Nearest Neighbor or Linear
+     * @param bounds restricted bounds in the image space
+     * @return A new image that is width X height.
+     */
+    public BufferedImage renderInto(Point3f upperleftIn, Vector3f rightIn,
+            Vector3f downIn,
+            int time, int i5, final BufferedImage img,
+            float alphaV, ColorLookupTable table,
+            ColorTransformTable colorTransform, Interpolation interpolation,
+            Rectangle bounds) {
+        // the width and height
+        final int width = bounds.width + bounds.x;
+        final int height = bounds.height + bounds.y;
+        final int iwidth = img.getWidth();
+        final int iheight = img.getHeight();
+    	if (bounds.x < 0 || bounds.y < 0 || width > img.getWidth() || height > img.getHeight()) {
+    		throw new IllegalArgumentException("Bounds extends past image " + bounds + " " + img);
+    	}
         // create copies of upperleft, right and down and put them in index space.
         Point3f upperleft = new Point3f(upperleftIn);
         Vector3f right = new Vector3f(rightIn);
@@ -918,15 +850,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
         // a reusable array for each row
         int[] row = new int[img.getWidth()];
 
-        // the width and height
-        int width = img.getWidth();
-        int height = img.getHeight();
         // the corner
         Vector3f v1 = new Vector3f();
+        Vector3f v2 = new Vector3f();
         // the current pointer
         Point3f cur = new Point3f();
         Point3f widthStep = new Point3f(right);
-        widthStep.scale(1f / width);
+        widthStep.scale(1f / iwidth);
 
         // these loops are substantially the same and done this way to 
         // give maximum speed, I hope.
@@ -942,15 +872,19 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
                         img.setRGB(0, i, width, 1, row, 0, width);
                     }    
          */
+        final int x = bounds.x;
+        final int y = bounds.y;
         if (colorTransform == null) {
             if (supportsLookupTable()) {
                 //value = table.getColor(getValueVoxels(cur.x, cur.y, cur.z, time, i5, interpolation));
                 if (Interpolation.NEAREST_NEIGHBOR.equals(interpolation)) {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = table.getColor(getValueNearestNeighbor(cur.x, cur.y, cur.z, time, i5));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -958,11 +892,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
                         img.setRGB(0, i, width, 1, row, 0, width);
                     }    
                 } else {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = table.getColor(interpolate(cur.x, cur.y, cur.z, time, i5));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -973,11 +909,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
             } else {
                 // value = getValueVoxelsInt(cur.x, cur.y, cur.z, time, i5, interpolation) & alphaInt;
                 if (Interpolation.NEAREST_NEIGHBOR.equals(interpolation)) {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = getValueNearestNeighborInt(cur.x, cur.y, cur.z, time, i5);
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -985,11 +923,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
                         img.setRGB(0, i, width, 1, row, 0, width);
                     }                     
                 } else {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = (int) interpolate(cur.x, cur.y, cur.z, time, i5);
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -1002,11 +942,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
             if (supportsLookupTable()) {
                 // value = colorTransform.get(table.getColor(getValueVoxels(cur.x, cur.y, cur.z, time, i5, interpolation)));
                 if (Interpolation.NEAREST_NEIGHBOR.equals(interpolation)) {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = colorTransform.get(table.getColor(getValueNearestNeighbor(cur.x, cur.y, cur.z, time, i5)));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -1014,11 +956,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
                         img.setRGB(0, i, width, 1, row, 0, width);
                     }                     
                 } else {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = colorTransform.get(table.getColor(interpolate(cur.x, cur.y, cur.z, time, i5)));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -1029,11 +973,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
             } else {
                 // value = colorTransform.get(getValueVoxelsInt(cur.x, cur.y, cur.z, time, i5, interpolation)) & alphaInt;
                 if (Interpolation.NEAREST_NEIGHBOR.equals(interpolation)) {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = colorTransform.get(getValueNearestNeighborInt(cur.x, cur.y, cur.z, time, i5));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -1041,11 +987,13 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
                         img.setRGB(0, i, width, 1, row, 0, width);
                     }                     
                 } else {
-                    for (int i = 0; i < height; i++) {
+                    for (int i = y; i < height; i++) {
                         img.getRGB(0, i, width, 1, row, 0, width);
-                        v1.scale(((float) i) / height, down);
-                        cur.add(upperleft, v1);
-                            for (int j = 0; j < width; j++) {
+                        v1.scale(((float) i) / iheight, down);
+                        v2.scale(((float) x) / iwidth, right);
+                        cur.add(upperleft, v2);
+                        cur.add(v1);
+                            for (int j = x; j < width; j++) {
                                 int value = colorTransform.get((int) interpolate(cur.x, cur.y, cur.z, time, i5));
                                 row[j] = blend(row[j], value, alphaV);
                                 cur.add(widthStep);
@@ -1061,8 +1009,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
     /**
      * Transform p from mm to voxel indices and call getValueVoxels
      * @param p The location in mm.
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @param in
      * @return return the value at p after interpolating
      */
@@ -1077,8 +1025,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param x
      * @param y
      * @param z
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @param in
      * @return the value at (x,y,z,time,i5) after interpolating
      */
@@ -1122,8 +1070,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param x
      * @param y
      * @param z
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @param in
      * @return the value at (x,y,z,time,i5) after interpolating as an int.
      */
@@ -1141,8 +1089,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param x index
      * @param y index
      * @param z index
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return The interpolated value.
      */
     protected double interpolate(float x, float y, float z, int time, int i5) {
@@ -1208,8 +1156,8 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param i
      * @param j
      * @param k
-     * @param time The time dimension is used to lookup the index in timeseries data
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0
+     * @param time
+     * @param i5
      * @return an iterator over this volume (starting at (i,j,k,time,i5))
      */
     public abstract VolumeArrayIterator iterator(int i, int j, int k, int time, int i5);
@@ -1356,12 +1304,12 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y0  First y
      * @param z0 First z
      * @param t0 First t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_0 First i5
+     * @param i5_0 First i5
      * @param width Distance in x dir in voxels.
      * @param height Distance in y dir in voxels.
      * @param depth Distance in z dir in voxels.
      * @param duration Distance in time dir in voxels.
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_count Distance in i5 dir in voxels.
+     * @param i5_count Distance in i5 dir in voxels.
      * @return rv
      */
     public int[] getSeries(int[] rv, int x0, int y0, int z0, int t0, int i5_0,
@@ -1390,12 +1338,12 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y0  First y
      * @param z0 First z
      * @param t0 First t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_0 First i5
+     * @param i5_0 First i5
      * @param width Distance in x dir in voxels.
      * @param height Distance in y dir in voxels.
      * @param depth Distance in z dir in voxels.
      * @param duration Distance in time dir in voxels.
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_count Distance in i5 dir in voxels.
+     * @param i5_count Distance in i5 dir in voxels.
      */
     public void setSeries(int[] values, int x0, int y0, int z0, int t0, int i5_0,
             int width, int height, int depth, int duration, int i5_count) {
@@ -1422,12 +1370,12 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y0  First y
      * @param z0 First z
      * @param t0 First t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_0 First i5
+     * @param i5_0 First i5
      * @param width Distance in x dir in voxels.
      * @param height Distance in y dir in voxels.
      * @param depth Distance in z dir in voxels.
      * @param duration Distance in time dir in voxels.
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_count Distance in i5 dir in voxels.
+     * @param i5_count Distance in i5 dir in voxels.
      */
     public void setSeries(double[] values, int x0, int y0, int z0, int t0, int i5_0,
             int width, int height, int depth, int duration, int i5_count) {
@@ -1454,12 +1402,12 @@ public abstract class VolumeArray implements Serializable, Iterable<Object> {
      * @param y0  First y
      * @param z0 First z
      * @param t0 First t
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_0 First i5
+     * @param i5_0 First i5
      * @param width Distance in x dir in voxels.
      * @param height Distance in y dir in voxels.
      * @param depth Distance in z dir in voxels.
      * @param duration Distance in time dir in voxels.
-     * @param i5 Nifti supports up to 5 dimensions, but usually this is 0_count Distance in i5 dir in voxels.
+     * @param i5_count Distance in i5 dir in voxels.
      * @return rv
      */
     public double[] getSeries(double[] rv, int x0, int y0, int z0, int t0, int i5_0,

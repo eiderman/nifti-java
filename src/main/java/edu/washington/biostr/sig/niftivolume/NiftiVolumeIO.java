@@ -7,7 +7,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -220,9 +222,20 @@ public class NiftiVolumeIO {
      * @throws java.io.IOException
      */
     public static IndexedAtlasVolumeArray loadAtlas(URL atlas, VolumeArray img) throws IOException {
+    	return loadAtlas(atlas.openStream(), img);
+    }
+
+    /**
+     * Load an atlas volume
+     * @param atlas A stream to input the xml
+     * @param img The backing array with the atlas data
+     * @return an IndexedAtlasVolumeArray.
+     * @throws java.io.IOException
+     */
+    public static IndexedAtlasVolumeArray loadAtlas(InputStream atlas, VolumeArray img) throws IOException {
         try {
             Document doc = DocumentBuilderFactory.newInstance().
-                    newDocumentBuilder().parse(atlas.openStream());
+                    newDocumentBuilder().parse(atlas);
             NodeList nl = doc.getDocumentElement().getElementsByTagName("Area");
             Int2ObjectMap<AtlasElement> atlasElements =
                     new Int2ObjectOpenHashMap<AtlasElement>();
@@ -238,6 +251,7 @@ public class NiftiVolumeIO {
             throw new IllegalStateException(e);
         }
     }
+    
     
     /**
      * Load an atlas volume

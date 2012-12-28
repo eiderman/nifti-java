@@ -57,8 +57,7 @@ class ByteIndexedVolumeArray
 
     @Override
     public void setData(int index, double value) {
-        byte v = (byte) Math.round(value);
-        array[index] = v;
+    	setData(index, (int) Math.round(value));
     }
 
     @Override
@@ -67,7 +66,7 @@ class ByteIndexedVolumeArray
     }
     
     @Override
-    public Object getDataArray() {
+    public byte[] getDataArray() {
     	return array;
     }
 }

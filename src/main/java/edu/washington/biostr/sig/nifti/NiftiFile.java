@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -61,8 +62,8 @@ public class NiftiFile
 
    public NiftiFile(URL file) throws IOException, URISyntaxException
    {
-      this(file.getPath().contains(".nii") ? new URL[] {file} : 
-         FileUtilities.findURLs(file, new String[] {"hdr", "img", "mat", "imgz", "img.gz", "atlas.xml"}));
+      this(file.toString().contains(".nii") ? new URL[] {file} : 
+         FileUtilities.findURLs(file, new String[] {"nii", "hdr", "img", "mat", "imgz", "img.gz", "atlas.xml"}));
    }
 
    public NiftiFile(String fileResource, ClassLoader c) throws IOException, URISyntaxException
@@ -91,9 +92,14 @@ public class NiftiFile
     */
    public NiftiFile(URL... uri) throws IOException
    {
+	   if (uri.length == 0) {
+		   throw new IllegalArgumentException("No URIS found");
+	   } else {
+		   System.out.println("PROBLEM CHILD:" + Arrays.toString(uri));
+	   }
       for (int i = 0; i < uri.length; i++)
       {
-         String file = uri[i].getPath();
+         String file = uri[i].toString();
          if (file.contains(".hdr"))
          {
             hdr = uri[i];
@@ -351,7 +357,7 @@ public class NiftiFile
    }
 
    /**
-    * Get the data as an array array of doubles.  This will likely
+    * Get the data as an array as an array of doubles.  This will likely
     * require casting the data and may require a new allocation of the
     * array every time it is called.
     * @return an array of doubles.

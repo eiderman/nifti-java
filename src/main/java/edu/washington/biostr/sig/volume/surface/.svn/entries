@@ -1,7 +1,7 @@
-8
+9
 
 dir
-1496
+1207
 svn+ssh://ebmoore@trac.biostr.washington.edu/src/Mindseer/trunk/src/edu/washington/biostr/sig/volume/surface
 svn+ssh://ebmoore@trac.biostr.washington.edu/src
 
@@ -26,66 +26,39 @@ svn:special svn:externals svn:needs-lock
 
 50497ab2-1410-0410-b962-d7454220b504
 
-StaticMCTable.java
-file
-
-
-
-
-2008-11-05T20:04:55.000000Z
-be9558c0ea478b8b1b80fa949c95f3e4
-2008-06-13T21:13:29.482561Z
-1122
-ebmoore
-
 Direction.java
 file
 
 
 
 
-2008-11-05T20:04:55.000000Z
+2008-11-06T00:08:25.000000Z
 c18a90c3c1352aed8777d6e09f6c32ed
 2008-06-05T06:33:51.547120Z
 1116
 ebmoore
-
-SimpleOff.java
-file
 
 
 
 
-2008-11-05T20:04:55.000000Z
-b02f130b58a41fe456a0b538a7cea188
-2008-11-04T18:12:46.476634Z
-1196
-ebmoore
-has-props
-
-MarchingTetrahedron.java
-file
 
 
 
 
-2008-11-05T20:04:55.000000Z
-5b30c40ceeb551fb14cc052badd29c2e
-2008-06-05T06:33:51.547120Z
-1116
-ebmoore
-
-Surface.java
-file
 
 
 
 
-2008-11-05T20:04:55.000000Z
-e6929a25ed16ab432af2fb489dc72220
-2008-11-04T18:12:46.476634Z
-1196
-ebmoore
+
+
+
+
+
+
+
+
+
+223
 
 MarchingCubes.java
 file
@@ -93,12 +66,33 @@ file
 
 
 
-2008-11-05T20:04:55.000000Z
+2008-11-06T00:08:28.000000Z
 416154bcdab7096ec589403e7a95d212
 2008-06-05T06:33:51.547120Z
 1116
 ebmoore
 has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5169
 
 MarchingIsosurface.java
 file
@@ -106,9 +100,167 @@ file
 
 
 
-2008-11-05T20:04:55.000000Z
+2008-11-06T00:08:29.000000Z
 65c04be75e05abdb6601ccc4e6ea9a2a
 2008-11-04T18:12:46.476634Z
 1196
 ebmoore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12354
+
+MarchingTetrahedron.java
+file
+
+
+
+
+2008-11-06T00:08:27.000000Z
+5b30c40ceeb551fb14cc052badd29c2e
+2008-06-05T06:33:51.547120Z
+1116
+ebmoore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8135
+
+SimpleOff.java
+file
+
+
+
+
+2008-11-06T00:08:29.000000Z
+b02f130b58a41fe456a0b538a7cea188
+2008-11-04T18:12:46.476634Z
+1196
+ebmoore
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21732
+
+StaticMCTable.java
+file
+
+
+
+
+2008-11-06T00:08:24.000000Z
+be9558c0ea478b8b1b80fa949c95f3e4
+2008-06-13T21:13:29.482561Z
+1122
+ebmoore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+51849
+
+Surface.java
+file
+
+
+
+
+2008-11-06T00:08:27.000000Z
+e6929a25ed16ab432af2fb489dc72220
+2008-11-04T18:12:46.476634Z
+1196
+ebmoore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5936
 

@@ -44,99 +44,88 @@ public class AtlasIO {
   }
 
   /**
-   * Load a collection file and create the collections. Collections are ways to
-   * organize data that are not mutually exclusive and are not hierarchical.
-   * 
-   * @param collectionFile
-   *          the url to the file
-   * @param atlas
-   *          The avaliable atlas elements
+   * Load a collection file and create the collections.  Collections are 
+   * ways to organize data that are not mutually exclusive and are
+   * not hierarchical.
+   * @param collectionFile the url to the file
+   * @param atlas The avaliable atlas elements
    * @return an ordererd list of AtlasCollections
    * @throws java.io.IOException
    */
-  public static Iterable<AtlasCollection> getAtlasCollections(URL collectionFile,
-      Collection<AtlasElement> atlas) throws IOException {
-    try {
-      Map<String, AtlasElement> index = new HashMap<String, AtlasElement>();
-      for (AtlasElement ae : atlas) {
-        index.put(ae.getAbbreviation(), ae);
-        index.put(ae.getUniqueId(), ae);
-      }
-      List<AtlasCollection> result = new ArrayList<AtlasCollection>();
-      if (FileUtilities.touchURL(collectionFile)) {
-        Document doc = DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder().parse(collectionFile.openStream());
-        NodeList nl = doc.getDocumentElement().getElementsByTagName(
-            "Collection");
-        for (int i = 0; i < nl.getLength(); i++) {
-          Element e = (Element) nl.item(i);
-          NodeList children = e.getElementsByTagName("Element");
-          AtlasCollection collection = new AtlasCollection(
-              e.getAttribute("name"));
-          for (int j = 0; j < children.getLength(); j++) {
-            Element child = (Element) children.item(j);
-            String id = child.getAttribute("id");
-            if (id == null || id.length() == 0) {
-              // not very efficient
-              id = child.getAttribute("abbrev");
-            }
-            AtlasElement ae = index.get(id);
-            if (ae != null) {
-              collection.add(ae);
-            }
+  public static List<AtlasCollection> getAtlasCollections(URL collectionFile, 
+          Collection<AtlasElement> atlas) throws IOException {
+      try {
+          Map<String, AtlasElement> index = new HashMap<String, AtlasElement>();
+          for (AtlasElement ae : atlas) {
+              index.put(ae.getAbbreviation(), ae);
+              index.put(ae.getUniqueId(), ae);
           }
-          result.add(collection);
-        }
+          List<AtlasCollection> result = new ArrayList<AtlasCollection>();
+          if (FileUtilities.touchURL(collectionFile)) {
+              Document doc = DocumentBuilderFactory.newInstance().
+                      newDocumentBuilder().parse(collectionFile.openStream());
+              NodeList nl = doc.getDocumentElement().getElementsByTagName("Collection");
+              for (int i = 0; i < nl.getLength(); i++) {
+                  Element e = (Element) nl.item(i);
+                  NodeList children = e.getElementsByTagName("Element");
+                  AtlasCollection collection = new AtlasCollection(e.getAttribute("name"));
+                  for (int j = 0; j < children.getLength(); j++) {
+                      Element child = (Element) children.item(j);
+                      String id = child.getAttribute("id");
+                      if (id == null || id.length() == 0) {
+                          // not very efficient
+                          id = child.getAttribute("abbrev");
+                      }
+                      AtlasElement ae = index.get(id);
+                      if (ae != null) { collection.add(ae); }
+                  }
+                  result.add(collection);
+              }
+          }
+          // add the residual
+          AtlasCollection other = new AtlasCollection(
+                  result.isEmpty() ? "Structures": "Other Structures");
+          other.addAll(atlas);
+          for (AtlasCollection ac : result) {
+              other.removeAll(ac);
+          }
+          if (other.size() > 0) {
+              result.add(other);
+          }
+          return result;
+      } catch (SAXException e) {
+          throw new IllegalStateException(e);
+      } catch (ParserConfigurationException e) {
+          throw new IllegalStateException(e);
       }
-      // add the residual
-      AtlasCollection other = new AtlasCollection(
-          result.isEmpty() ? "Structures" : "Other Structures");
-      other.addAll(atlas);
-      for (AtlasCollection ac : result) {
-        other.removeAll(ac);
-      }
-      if (other.size() > 0) {
-        result.add(other);
-      }
-      return result;
-    } catch (SAXException e) {
-      throw new IllegalStateException(e);
-    } catch (ParserConfigurationException e) {
-      throw new IllegalStateException(e);
-    }
   }
-  
+
   /**
    * Load an atlas volume
-   * 
-   * @param atlas
-   *          The url to the atlas.xml index file
-   * @param img
-   *          The backing array with the atlas data
+   * @param atlas The url to the atlas.xml index file
+   * @param img The backing array with the atlas data
    * @return an IndexedAtlasVolumeArray.
    * @throws java.io.IOException
    */
-  public static Collection<AtlasElement> loadAtlas(URL atlas)
-      throws IOException {
-    try {
-      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-          .parse(atlas.openStream());
-      NodeList nl = doc.getDocumentElement().getElementsByTagName("Area");
-      Int2ObjectMap<AtlasElement> atlasElements = new Int2ObjectOpenHashMap<AtlasElement>();
-      for (int i = 0; i < nl.getLength(); i++) {
-        Element e = (Element) nl.item(i);
-        AtlasElement ae = new AtlasElement(e);
-        atlasElements.put(ae.getInt(), ae);
+  public static Collection<AtlasElement> loadAtlas(URL atlas) throws IOException {
+      try {
+          Document doc = DocumentBuilderFactory.newInstance().
+                  newDocumentBuilder().parse(atlas.openStream());
+          NodeList nl = doc.getDocumentElement().getElementsByTagName("Area");
+          Int2ObjectMap<AtlasElement> atlasElements =
+                  new Int2ObjectOpenHashMap<AtlasElement>();
+          for (int i = 0; i < nl.getLength(); i++) {
+              Element e = (Element) nl.item(i);
+              AtlasElement ae = new AtlasElement(e);
+              atlasElements.put(ae.getInt(), ae);
+          }
+          return atlasElements.values();
+      } catch (SAXException e) {
+          throw new IllegalStateException(e);
+      } catch (ParserConfigurationException e) {
+          throw new IllegalStateException(e);
       }
-      return atlasElements.values();
-    } catch (SAXException e) {
-      throw new IllegalStateException(e);
-    } catch (ParserConfigurationException e) {
-      throw new IllegalStateException(e);
-    }
   }
-
-
 
   /**
    * Load an atlas volume
@@ -160,9 +149,9 @@ public class AtlasIO {
         AtlasElement ae = new AtlasElement(e);
         atlasElements.put(ae.getInt(), ae);
       }
-      
+
       addOptionalCollections(atlas, img);
-      
+
       return new IndexedAtlasVolumeArray(img, atlasElements);
     } catch (SAXException e) {
       throw new IllegalStateException(e);
@@ -171,7 +160,8 @@ public class AtlasIO {
     }
   }
 
-  private static void addOptionalCollections(URL atlas, VolumeArray img) throws IOException {
+  private static void addOptionalCollections(URL atlas, VolumeArray img)
+      throws IOException {
 
     try {
       URL[] colUrl = FileUtilities.findURLs(atlas,
@@ -189,5 +179,4 @@ public class AtlasIO {
     }
   }
 
-  
 }

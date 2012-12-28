@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+import javax.media.j3d.Transform3D;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
@@ -162,8 +163,7 @@ public class ImageInfo2 {
     	Point3f point = new Point3f(this.point);
     	if (Orientation.FLIPPED.equals(orientation)) {
     		normal.negate();
-    		// setters added later than vecmath 1.3
-    		point.x = -point.x;
+    		point.setX(-point.getX());
     	}
         // generate right and down
         right.cross(up, normal);
@@ -420,7 +420,7 @@ public class ImageInfo2 {
     	}
         double x = axis.x, y = axis.y, z = axis.z;
         // thank god for Confuted!
-        Matrix4d tform = new Matrix4d(new double[]{
+        Transform3D tform = new Transform3D(new double[]{
             t * x * x + c, t * x * y - s * z, t * x * z + s * y, 0,
             t * x * y + s * z, t * y * y + c, t * y * z - s * x, 0,
             t * x * z - s * y, t * y * z + s * x, t * z * z + c, 0,

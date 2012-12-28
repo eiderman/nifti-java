@@ -200,4 +200,18 @@ public class Surface {
 	    	normals = null;
     	}
     }
+
+	public void validate() {
+		if (faces.length % 3 != 0 || faces.length == 0) {
+			throw new IllegalArgumentException("Wrong face count: " + faces.length);
+		}
+		if (normals != null && points.length != normals.length) {
+			throw new IllegalArgumentException();
+		}
+		for (int f : faces) {
+			if (f >= points.length || f < 0) {
+				throw new IllegalArgumentException("f is outside of range: [" + f + ";" + points.length + "]");
+			}
+		}
+	}
 }

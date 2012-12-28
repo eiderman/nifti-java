@@ -666,8 +666,8 @@ public class IndexedIterator
     	int i4 = data.getIndex(minX, minY, minZ + 1, 0, 0);
     	yskip = i2 - i1 - 1;
     	zskip = i4 - i3 - 1;
-		index = minIndex;
-		x = minX;
+		index = minIndex - 1;
+		x = minX - 1;
 		y = minY;
 		z = minZ;
 		i5 = 0;

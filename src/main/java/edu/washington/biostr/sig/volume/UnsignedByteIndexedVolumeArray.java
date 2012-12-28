@@ -45,4 +45,9 @@ public class UnsignedByteIndexedVolumeArray extends ByteIndexedVolumeArray {
     public DataType getType() {
         return DataType.TYPE_UBYTE;
     }
+    
+    @Override
+    public void setData(int index, int value) {
+        getDataArray()[index] = (byte) (value & 0xff);
+    }
 }
