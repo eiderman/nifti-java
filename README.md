@@ -42,4 +42,5 @@ Basic Usage
 Building
 ========
 
-The project is built using [Apache Buildr](http://buildr.apache.org/).  There is nothing special about the build except for downloading [fastutil](http://fastutil.di.unimi.it/).
+The project is built using [Apache Buildr](http://buildr.apache.org/).  There is nothing special about the build except for downloading [fastutil](http://fastutil.di.unimi.it/) and [vecmath from Java3D](http://mvnrepository.com/artifact/java3d/vecmath).
+ 
