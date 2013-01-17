@@ -162,7 +162,7 @@ public class ImageInfo2 {
     	Point3f point = new Point3f(this.point);
     	if (Orientation.FLIPPED.equals(orientation)) {
     		normal.negate();
-    		point.setX(-point.getX());
+    		point.x = -point.x;
     	}
         // generate right and down
         right.cross(up, normal);
